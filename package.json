@@ -15,5 +15,9 @@
     "bot"
   ],
   "author": "ATFDevs",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7"
+  }
 }
