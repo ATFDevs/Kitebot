@@ -1,0 +1,19 @@
+{
+  "name": "kitebot",
+  "version": "1.0.0",
+  "description": "A bespoke discord bot for a server near you!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ATFDevs/Kitebot"
+  },
+  "keywords": [
+    "discord",
+    "bot"
+  ],
+  "author": "ATFDevs",
+  "license": "ISC"
+}
