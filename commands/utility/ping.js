@@ -5,6 +5,7 @@ module.exports = {
     .setName('ping')
     .setDescription('Replies with pong!'),
     async execute(interaction) {
+        console.log(`/ping ran by ${interaction.user.id}`);
         await interaction.reply(`This command was ran by ${interaction.user.username}`)
     }
 }
