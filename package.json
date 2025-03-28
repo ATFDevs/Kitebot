@@ -4,7 +4,9 @@
   "description": "A bespoke discord bot for a server near you!",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node cmd-deploy.js && node .",
+    "bot": "node . | pino-pretty -i pid,hostname -t 'yyyy-mm-dd HH:MM:ss'",
+    "register": "node cmd-deploy.js"
   },
   "repository": {
     "type": "git",
@@ -17,9 +19,11 @@
   "author": "ATFDevs",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.8.4",
     "discord.js": "^14.18.0",
     "dotenv": "^16.4.7",
     "mysql2": "^3.13.0",
+    "pino": "^9.6.0",
     "sequelize": "^6.37.6"
   }
 }
