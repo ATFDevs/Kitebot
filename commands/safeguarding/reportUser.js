@@ -9,12 +9,13 @@ const {
     EmbedBuilder,
     Colors,
     userMention,
-    DMChannel,
-    Message
+    DMChannel
 } = require("discord.js");
+const logger = require('../../logger');
 
 module.exports = {
     async execute(db, interaction) {
+        await logger.info(`User Context Command (Report User Concern) ran by ${interaction.user.id}`);
         // Get the targeted user.
         let concernUser = interaction.targetUser;
 
@@ -33,14 +34,17 @@ module.exports = {
         modal.addComponents(actionRow);
 
         // Send the modal to the user.
+        await logger.trace('(UCC Report User Concern) - Displaying modal to user');
         await interaction.showModal(modal);
 
         // Wait for the response from the modal.
+        await logger.trace('(UCC Report User Concern) - Waiting for response from modal');
         let filter = (interaction) => interaction.customId === `report-user-concern-${concernUser.id}`;
         interaction.awaitModalSubmit({time: 900000, filter: filter}).then(async (modalInteraction) => {
             let logId = await db.addUserConcern(interaction.guild.id, interaction.member.id, modalInteraction.fields.getTextInputValue('report-user-concern-message'), concernUser.id);
 
             // Get the safeguarding channels for the server.
+            await logger.trace('(UCC Report User Concern) - Getting safeguarding channel from DB');
             let sgc = await db.getChannelOfType(interaction.guild.id, 'safeguarding');
             let safeguardingChannels = [];
             safeguardingChannels.push(await interaction.guild.channels.fetch(sgc.channelId));
@@ -48,10 +52,12 @@ module.exports = {
             // Handle if the server doesn't have any safeguarding channels.
             let guildOwner = await interaction.guild.fetchOwner();
             if (safeguardingChannels[0] === undefined) {
+                await logger.trace('(UCC Report User Concern) - Guild doesn\'t have safeguarding channel. Reporting to owner');
                 safeguardingChannels.splice(0, 1);
                 safeguardingChannels.push(await guildOwner.createDM());
             }
 
+            await logger.trace('(UCC Report User Concern) - Reporting safeguarding concerns to mods.');
             for (let channel of safeguardingChannels) {
                 const sendMessage = await channel.send({
                     embeds: [new EmbedBuilder()
@@ -77,6 +83,7 @@ module.exports = {
             }
 
             // Inform user of the report.
+            await logger.trace('(UCC Report User Concern) - Informing user of Log ID for safeguarding concern.')
             await modalInteraction.reply({content: `Thank you for reporting! The moderation team for the server has been informed and will deal with the issue. If you need to speak to the mods more about the issue, the log ID is #${logId}`, flags: MessageFlags.Ephemeral});
         });
     }, data: new ContextMenuCommandBuilder()

@@ -3,19 +3,25 @@ const { REST, Routes } = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
 const dotenv = require('dotenv');
+const logger = require('./logger');
 
+await logger.info('Loading .ENV file');
 dotenv.config();
 if (process.env.TOKEN === '' || !process.env.TOKEN) {
-    console.error('You must provide a token');
+    await logger.error('You must provide a token');
     process.exit(1);
 }
 if(process.env.APPLICATION_ID === '' || !process.env.APPLICATION_ID) {
-    console.error('You must provide a APPLICATION_ID');
+    await logger.error('You must provide a APPLICATION_ID');
     process.exit(1);
 }
 const token = process.env.TOKEN;
 const application_id = process.env.APPLICATION_ID;
 
+await logger.info('Successfully loaded .ENV file.')
+
+
+await logger.info('Loading commands from DEPLOY');
 const commands = [];
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
@@ -29,7 +35,7 @@ for (const folder of commandFolders) {
         if ('data' in command && 'execute' in command) {
             commands.push(command.data.toJSON());
         } else {
-            console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+            await logger.warn(`The command at ${filePath} is missing a required "data" or "execute" property.`);
         }
     }
 }
@@ -39,7 +45,7 @@ const rest = new REST().setToken(token);
 
 (async () => {
     try {
-        console.log(`Started refreshing ${commands.length} application (/) commands.`);
+        await logger.info(`Started refreshing ${commands.length} application (/) commands.`);
 
         // Put method fully refreshes commands.
         const data = await rest.put(
@@ -47,9 +53,9 @@ const rest = new REST().setToken(token);
             { body: commands },
         );
 
-        console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+        await logger.info(`Successfully reloaded ${data.length} application (/) commands.`);
     } catch (error) {
         // And of course, make sure you catch and log any errors!
-        console.error(error);
+        await logger.error(error);
     }
 })();

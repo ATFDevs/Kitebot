@@ -1,11 +1,12 @@
 const {SlashCommandBuilder} = require('discord.js')
+const logger = require('../../logger');
 
 module.exports = {
     data: new SlashCommandBuilder()
     .setName('ping')
     .setDescription('Replies with pong!'),
     async execute(db, interaction) {
-        console.log(`/ping ran by ${interaction.user.id}`);
-        await interaction.reply(`This command was ran by ${interaction.user.username}`)
+        await logger.info(`Slash Command (/ping) ran by ${interaction.user.id}`);
+        await interaction.reply('Pong!! I am connected and active!');
     }
 }

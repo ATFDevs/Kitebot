@@ -1,4 +1,6 @@
 const {Serialize, DataTypes, Sequelize, literal} = require('sequelize');
+const logger = require('../logger');
+
 
 class Database {
     constructor(dbIp, dbName, dbUsername, dbPassword) {
@@ -58,15 +60,18 @@ class Database {
     }
 
     async connect() {
+        await logger.info('DB - Attempting to connect')
         try {
             await this.sequelize.authenticate();
             await this.sequelize.sync();
         } catch (error) {
-            console.error(`[ERROR] - Failed to connect to database with error ${error}`);
+            await logger.fatal(`DB - Failed to connect to database with error ${error}`);
+            await process.exit(1);
         }
     }
 
     async getBirthday(birthdayId) {
+        await logger.trace('DB - running getBirthday');
         let birthday = await this.Birthday.findByPk(birthdayId);
         if (!birthday) {
             return null;
@@ -75,10 +80,16 @@ class Database {
     }
 
     async getBirthdayFromDate(date) {
-        return await this.Birthday.findAll({where: literal(`MONTH(birthday) = ${date.getMonth() + 1} AND DAY(birthday) = ${date.getDate()}`)});
+        await logger.trace('DB - Running getBirthdayFromDate');
+        try {
+            return await this.Birthday.findAll({where: literal(`MONTH(birthday) = ${date.getMonth() + 1} AND DAY(birthday) = ${date.getDate()}`)});
+        } catch (error) {
+            await logger.error(`DB - Failed to getBirthdayFromDate with error ${error}`);
+        }
     }
 
     async editBirthday(birthdayId, birthday, display) {
+        await logger.trace('DB - Running editBirthday');
         try {
             let bday = await this.Birthday.findByPk(birthdayId);
             if (!bday) {
@@ -89,7 +100,7 @@ class Database {
                 }, {where: {birthdayId: birthdayId}});
             }
         } catch (error) {
-            console.error(`[ERROR] - Failed to update birthday with error ${error}`);
+            await logger.error(`DB - Failed to editBirthday with error ${error}`);
         }
     }
 
@@ -99,6 +110,7 @@ class Database {
      * @returns {Promise<string>}
      */
     async getBirthdayMessage(guildId) {
+        await logger.trace('DB - Running getBirthdayMessage');
         let defaultMessage = 'Happy birthday {member}! We hope you have an awesome day!!';
         try {
 
@@ -112,16 +124,17 @@ class Database {
             return (response) ? response.message : defaultMessage;
 
         } catch (error) {
-            console.error(`[ERROR] - Failed to get birthday message with error ${error}`);
+            await logger.error(`DB - Failed to getBirthdayMessage with error ${error}`);
             return defaultMessage;
         }
     }
 
     async editBirthdayMessage(guildId, messageContent) {
+        await logger.trace('DB - Running editBirthdayMessage');
         try {
             await this.SpecialMessages.update({guildId: guildId, messageType: 'birthday', message: messageContent}, {where: {guildId: guildId, messageType: 'birthday'}});
         } catch (error) {
-            console.error(`[ERROR] - Failed to update birthday message with error ${error}`);
+            await logger.error(`BD - Failed to editBirthdayMessage with error ${error}`);
         }
     }
 
@@ -133,36 +146,45 @@ class Database {
      * @returns {Promise<Model[]>} An array of all the results.
      */
     async getChannelOfType(guildId, channelType) {
-        return await this.Channel.findOne({where: {guildId: guildId, channelType: channelType}});
+        await logger.trace('DB - Running getChannelOfType');
+        try {
+            return await this.Channel.findOne({where: {guildId: guildId, channelType: channelType}});
+        } catch (error) {
+            await logger.error(`DB - Failed to getChannelOfType with error ${error}`);
+        }
     }
 
     async getChannelById(guildId, channelId) {
+        await logger.trace('DB - Running getChannelById');
         try {
             return await this.Channel.findOne({where: {guildId: guildId, channelId: channelId}});
         } catch (error) {
-            console.error(`[ERROR] - Failed to get a specific channel with error ${error}`);
+            await logger.error(`DB - Failed to getChannelById with error ${error}`);
         }
     }
 
     async getChannelsOfType(guildId, channelType) {
+        await logger.trace('DB - Running getChannelsOfType');
         try {
             return await this.Channel.findAll({where: {guildId: guildId, channelType: channelType}});
         } catch (error) {
-            console.error(`[ERROR] - Failed to get a set of channels channel with error ${error}`);
+            await logger.error(`DB - Failed to getChannelsOfType with error ${error}`);
         }
     }
 
     async setChannelOfType(guildId, channelId, channelType) {
+        await logger.trace('DB - Running setChannelOfType');
         try {
             await this.Channel.destroy({where: {guildId: guildId, channelType: channelType}});
 
             await this.Channel.create({channelId: channelId, guildId: guildId, channelType: channelType});
         } catch (error) {
-            console.error(`[ERROR] - Failed to add channel ${channelType}: ${channelId} with error ${error}`);
+            await logger.error(`DB - Failed to setChannelOfType with error ${error}`);
         }
     }
 
     async addChannelOfType(guildId, channelId, channelType) {
+        await logger.trace('DB - Running addChannelOfType');
         try {
             await this.Channel.upsert({
                 channelId: channelId,
@@ -170,11 +192,12 @@ class Database {
                 channelType: channelType
             }, {where: {guildId: guildId, channelId: channelId}});
         } catch (error) {
-            console.error(`[ERROR] - Failed to add channel ${channelType}: ${channelId} with error ${error}`);
+            await logger.error(`DB - Failed to addChannelOfType with error ${error}`);
         }
     }
 
     async deleteChannelOfType(guildId, channelId, channelType) {
+        await logger.trace('DB - Running deleteChannelOfType');
         try {
             if (await this.Channel.findOne({
                 where: {
@@ -186,11 +209,12 @@ class Database {
                 await this.Channel.destroy({where: {guildId: guildId, channelId: channelId, channelType: channelType}});
             }
         } catch (error) {
-            console.error(`[ERROR] - Failed to delete channel ${channelType}: ${channelId} with error ${error}`);
+            await logger.error(`DB - Failed to deleteChannelOfType with error ${error}`);
         }
     }
 
     // Safeguarding commands
+    // TODO: DO logging from here.
     /**
      * Report a message to the safeguarding team. Database entry. Message interaction.
      * @param guildId {int} The ID for the guild the concern was raised in.

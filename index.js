@@ -1,4 +1,4 @@
-const {Client, Events, GatewayIntentBits, Collection, MessageFlagsString} = require('discord.js');
+const {Client, GatewayIntentBits, Collection} = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
 const logger = require('./logger');
@@ -27,6 +27,8 @@ const client = new Client({
 // Command registering
 client.commands = new Collection()
 
+logger.info('Beginning adding commands');
+
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
@@ -40,11 +42,15 @@ for (const folder of commandFolders) {
         if ('data' in command && 'execute' in command) {
             client.commands.set(command.data.name, command);
         } else {
-            logger.log(`[WARNING] The command at ${filePath} is missing the required 'data' or 'execute' property.`);
+            logger.warn(`The command at ${filePath} is missing the required 'data' or 'execute' property.`);
         }
     }
 }
 
+logger.info('Commands successfully loaded!');
+
+
+logger.info('Loading database connection');
 (async() => {
     const {join} = require("node:path");
     const Database = require(`./database/mysql`);
@@ -56,7 +62,8 @@ for (const folder of commandFolders) {
 
     for (let item in [dbIp, dbName, dbUsername, dbPassword]) {
         if (item === '' || !item) {
-            logger.error(`Please provide valid entries for MySQL Connection Params.}`)
+            await logger.error(`Please provide valid entries for MySQL Connection Params.}`)
+            process.exit(1);
         }
     }
 
@@ -75,6 +82,8 @@ for (const folder of commandFolders) {
             client.on(event.name, (...args) => event.execute(databaseConnection, ...args));
         }
     }
+
+    await logger.info('Database connection successfully loaded!');
 
     await client.login(DISC_BOT_TOKEN);
 })();

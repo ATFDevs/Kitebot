@@ -1,13 +1,13 @@
 const {Events, userMention} = require('discord.js');
 const Database = require("../database/mysql");
 const {join} = require("node:path");
+const logger = require("../logger");
 
 module.exports = {
     name: Events.ClientReady, once: true, async execute(db, client) {
-        console.log(`Ready! Logged into discord as ${client.user.tag}!`);
+        await logger.info(`Ready! Logged into discord as ${client.user.tag}!`);
 
         // Birthday handler.
-        //TODO: CREATE BIRTHDAY HANDLER
         setInterval(async () => {
             // Get the current date to check against.
             const now = new Date();
@@ -17,7 +17,7 @@ module.exports = {
             if (Number(hour) !== 8) {
                 return;
             }
-
+            await logger.info('Running birthday check');
 
             // Get all the guilds from the client.
             const g = await client.guilds.fetch();

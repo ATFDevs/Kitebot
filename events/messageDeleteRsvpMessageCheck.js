@@ -1,9 +1,11 @@
 const {Events, AttachmentBuilder, channelMention} = require("discord.js");
+const logger = require('../logger');
 
 
 module.exports = {
     name: Events.MessageDelete,
     async execute(db, interaction) {
+        await logger.trace('Message deleted! Checking for RSVP.');
         // Check that the message deleted is in the right context.
         if (!interaction.channel.isTextBased() || interaction.channel.isDMBased()) return;
 
@@ -15,6 +17,8 @@ module.exports = {
         // Check if the deleted message was an RSVP Message.
         if (!await db.isRSVPMessage(guildId, channelId, messageId)) return;
 
+        await logger.trace('RSVP message has been deleted!');
+
         // Get the thread channel and remove all members.
         let threadChannel = await interaction.guild.channels.fetch(messageId);
         for (const [memberId, _] of await threadChannel.members.fetch()) {
@@ -23,6 +27,7 @@ module.exports = {
         }
 
         if(await db.getArchiveStatus(guildId)) {
+            await logger.trace('Guild has archive enabled. Archiving the RSVP thread.');
             // Get the message history of the thread channel and log it.
             let retrievedMessages = [];
             let lastRetrievedMessage = null;
@@ -56,9 +61,11 @@ module.exports = {
             });
         }
 
+        await logger.trace('Deleting the thread channel for RSVP.')
         // Delete once all messages have been archived.
         await threadChannel.delete();
 
+        await logger.trace('Deleting the RSVP message from database.')
         // Delete the message from the database.
         await db.deleteRSVPMessage(guildId, channelId, messageId);
     }
