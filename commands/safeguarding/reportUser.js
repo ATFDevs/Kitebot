@@ -9,7 +9,8 @@ const {
     EmbedBuilder,
     Colors,
     userMention,
-    DMChannel
+    DMChannel,
+    InteractionContextType
 } = require("discord.js");
 const logger = require('../../logger');
 
@@ -89,4 +90,5 @@ module.exports = {
     }, data: new ContextMenuCommandBuilder()
         .setName('Report User Concern')
         .setType(ApplicationCommandType.User)
+        .setContexts(InteractionContextType.Guild)
 }

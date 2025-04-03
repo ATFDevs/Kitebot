@@ -2,10 +2,10 @@ const {
     SlashCommandBuilder,
     ChannelType,
     MessageFlags,
-    PermissionsBitField,
     channelMention,
     Colors,
-    EmbedBuilder
+    EmbedBuilder,
+    InteractionContextType
 } = require("discord.js");
 const {nonPermittedAction} = require("../../utility/embeds");
 const {checkPermissionOwner} = require('../../utility/permission');
@@ -15,6 +15,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('safeguarding')
         .setDescription('Safeguarding for this server')
+        .setContexts(InteractionContextType.Guild)
         .addSubcommand(subcommand =>
             subcommand
                 .setName('channel')

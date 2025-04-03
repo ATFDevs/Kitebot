@@ -4,7 +4,8 @@ const {
     EmbedBuilder,
     codeBlock,
     Colors,
-    roleMention
+    roleMention,
+    InteractionContextType
 } = require("discord.js");
 const logger = require("../../logger");
 const {checkPermissionAdmin} = require('../../utility/permission');
@@ -14,6 +15,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('config')
         .setDescription('Commands to deal with the configuration of the guild.')
+        .setContexts(InteractionContextType.Guild)
         .addSubcommandGroup(messagesGroup =>
             messagesGroup
                 .setName('messages')

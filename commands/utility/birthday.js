@@ -1,4 +1,4 @@
-const {SlashCommandBuilder, PermissionsBitField, MessageFlags, EmbedBuilder, Colors, codeBlock} = require('discord.js');
+const {SlashCommandBuilder, MessageFlags, EmbedBuilder, Colors, codeBlock, InteractionContextType} = require('discord.js');
 const logger = require('../../logger');
 const {checkPermissionAdmin, checkPermissionOwner} = require('../../utility/permission')
 const {nonPermittedAction} = require('../../utility/embeds');
@@ -17,6 +17,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('birthday')
         .setDescription('Handles birthday settings for the server.')
+        .setContexts(InteractionContextType.Guild)
         .addSubcommand(setCommand =>
             setCommand
                 .setName('set')

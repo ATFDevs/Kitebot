@@ -9,14 +9,16 @@ const {
     TextInputBuilder,
     TextInputStyle,
     ActionRowBuilder,
-    MessageFlags
+    MessageFlags,
+    InteractionContextType
 } = require("discord.js");
 const logger = require("../../logger");
 
 module.exports = {
     data: new ContextMenuCommandBuilder()
         .setName('Report Concern')
-        .setType(ApplicationCommandType.Message),
+        .setType(ApplicationCommandType.Message)
+        .setContexts(InteractionContextType.Guild),
     async execute(db, interaction) {
         await logger.info(`Message Context Command (Report concern) ran by ${interaction.member.id}`);
 
