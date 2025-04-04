@@ -42,7 +42,7 @@ module.exports = {
         await logger.trace('(UCC Report User Concern) - Waiting for response from modal');
         let filter = (interaction) => interaction.customId === `report-user-concern-${concernUser.id}`;
         interaction.awaitModalSubmit({time: 900000, filter: filter}).then(async (modalInteraction) => {
-            let logId = await db.addUserConcern(interaction.guild.id, interaction.member.id, modalInteraction.fields.getTextInputValue('report-user-concern-message'), concernUser.id);
+            let logId = await db.addUserConcern(interaction.guild.id, interaction.member.id, btoa(modalInteraction.fields.getTextInputValue('report-user-concern-message')), concernUser.id);
 
             // Get the safeguarding channels for the server.
             await logger.trace('(UCC Report User Concern) - Getting safeguarding channel from DB');

@@ -68,7 +68,7 @@ module.exports = {
 
         // Store the record in the database.
         await logger.trace('(MCC Report Concern) - Logging safeguarding concern to DB');
-        let logId = await db.addMessageConcern(guildId, reportingMember, modalInteraction.fields.getTextInputValue('report-message-concern-message'), messageSender.id, messageContent);
+        let logId = await db.addMessageConcern(guildId, reportingMember, btoa(modalInteraction.fields.getTextInputValue('report-message-concern-message')), messageSender.id, btoa(messageContent));
 
         // Send the information for each channel.
         await logger.trace('(MCC Report Concern) - Reporting concern to guild');
