@@ -56,9 +56,9 @@ module.exports = {
             // Get emoji information for the guild.
             let emojis = await db.getGuildEmojis(interaction.guild.id);
 
-            let yesEmoji = (emojis[0]) ? emojis[0] : rsvpYesEmoji;
-            let maybeEmoji = (emojis[1]) ? emojis[1] : rsvpMaybeEmoji;
-            let noEmoji = (emojis[2]) ? emojis[2] : rsvpNoEmoji;
+            let yesEmoji = (!(emojis[0] === null || emojis[0] === undefined)) ? emojis[0] : rsvpYesEmoji;
+            let maybeEmoji = (!(emojis[1] === null || emojis[1] === undefined)) ? emojis[1] : rsvpMaybeEmoji;
+            let noEmoji = (!(emojis[2] === null || emojis[2] === undefined)) ? emojis[2] : rsvpNoEmoji;
 
             await logger.trace('Reacting to new message');
             // Send the reactions to the message
