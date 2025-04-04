@@ -9,6 +9,7 @@ const {
     EmbedBuilder,
     Colors,
     userMention,
+    quote,
     DMChannel,
     InteractionContextType
 } = require("discord.js");
@@ -68,7 +69,7 @@ module.exports = {
                             iconURL: concernUser.avatarURL(),
                             url: `https://discord.com/users/${concernUser.id}`
                         })
-                        .setDescription(`A user has reported a concern with ${userMention(concernUser.id)} with reason '${modalInteraction.fields.getTextInputValue('report-user-concern-message')}'.`)
+                        .setDescription(`A user has reported a concern with ${userMention(concernUser.id)} with reason '${quote(modalInteraction.fields.getTextInputValue('report-user-concern-message'))}'.`)
                         .setColor(Colors.Purple)
                         .setTimestamp(new Date())]
                 });

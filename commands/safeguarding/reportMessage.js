@@ -4,6 +4,8 @@ const {
     EmbedBuilder,
     Colors,
     codeBlock,
+    userMention,
+    quote,
     DMChannel,
     ModalBuilder,
     TextInputBuilder,
@@ -18,8 +20,7 @@ module.exports = {
     data: new ContextMenuCommandBuilder()
         .setName('Report Concern')
         .setType(ApplicationCommandType.Message)
-        .setContexts(InteractionContextType.Guild),
-    async execute(db, interaction) {
+        .setContexts(InteractionContextType.Guild), async execute(db, interaction) {
         await logger.info(`Message Context Command (Report concern) ran by ${interaction.member.id}`);
 
         // Get data from the message and interaction.
@@ -64,7 +65,9 @@ module.exports = {
 
         // Wait for a response from the modal.
         await logger.trace('(MCC Report Concern) - Waiting for response to modal.')
-        let modalInteraction = await interaction.awaitModalSubmit({time: 900000, filter: (f) => f.customId === `report-message-concern-${messageSender.id}`});
+        let modalInteraction = await interaction.awaitModalSubmit({
+            time: 900000, filter: (f) => f.customId === `report-message-concern-${messageSender.id}`
+        });
 
         // Store the record in the database.
         await logger.trace('(MCC Report Concern) - Logging safeguarding concern to DB');
@@ -81,7 +84,7 @@ module.exports = {
                         iconURL: messageSender.avatarURL(),
                         url: `https://discord.com/users/${messageSender.id}`
                     })
-                    .setDescription(`A user has reported a concern with the message ${codeBlock(messageContent)} with reason '${modalInteraction.fields.getTextInputValue('report-message-concern-message')}'`)
+                    .setDescription(`A user has reported a concern with the message ${codeBlock(messageContent)}(https://discord.com/channels/${guildId}/${interaction.targetMessage.channel.id}/${interaction.targetMessage.id}) sent by ${userMention(interaction.targetMessage.author.id)} with reason '${quote(modalInteraction.fields.getTextInputValue('report-message-concern-message'))}'`)
                     .setColor(Colors.Purple)
                     .setTimestamp(messageTimestamp)]
             });
@@ -98,6 +101,9 @@ module.exports = {
 
         // Inform the reporter that the concern has been logged.
         await logger.trace('(MCC Report Concern) - Informing user of Log ID from concern.');
-        await modalInteraction.reply({content:`Thank you for reporting! The moderation team for the server has been informed and will deal with the issue. If you need to speak to the mods more about the issue, the log ID is #${logId}`, flags: MessageFlags.Ephemeral});
+        await modalInteraction.reply({
+            content: `Thank you for reporting! The moderation team for the server has been informed and will deal with the issue. If you need to speak to the mods more about the issue, the log ID is #${logId}`,
+            flags: MessageFlags.Ephemeral
+        });
     }
 }
