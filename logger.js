@@ -9,7 +9,7 @@ const logger = pino({}, pino.transport({
             {
                 target: require.resolve('pino-pretty'),
                 options: { colorize: true },
-                level: "info"
+                level: "trace"
             },
             {
                 target: 'pino/file',

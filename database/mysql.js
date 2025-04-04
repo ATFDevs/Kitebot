@@ -375,7 +375,7 @@ class Database {
 
     async addRoleToGuild(roleId, guildId, rolePermissionLevel) {
         try {
-            await this.Roles.create({roleId: roleId, guildId: guildId, permissionLevel: rolePermissionLevel});
+            await this.Roles.create({roleId: roleId, guildId: guildId, permission: rolePermissionLevel});
         } catch (error) {
             console.error(`[ERROR] - Failed to add role to guild: ${error}`);
         }

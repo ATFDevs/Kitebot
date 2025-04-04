@@ -51,10 +51,14 @@ const rest = new REST().setToken(token);
         try {
             await logger.info(`Started refreshing ${commands.length} application (/) commands.`);
 
-            // Create the bulk update route
-            const discordBulkRoute = `/applications/${application_id}/commands`;
-            let data = await rest.put(discordBulkRoute, {
-                body: commands,
+            // // Create the bulk update route
+            // const discordBulkRoute = `/applications/${application_id}/commands`;
+            // let data = await rest.put(discordBulkRoute, {
+            //     body: commands,
+            // });
+
+            const data = await rest.put(Routes.applicationGuildCommands(application_id, '1073999389590294632'), {
+                body: commands
             });
 
             await logger.info(`Successfully reloaded ${data.length} application (/) commands.`);

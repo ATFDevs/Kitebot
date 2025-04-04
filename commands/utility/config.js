@@ -8,7 +8,7 @@ const {
     InteractionContextType
 } = require("discord.js");
 const logger = require("../../logger");
-const {checkPermissionAdmin} = require('../../utility/permission');
+const {checkPermissionAdmin, checkPermissionOwner} = require('../../utility/permission');
 const {nonPermittedAction} = require('../../utility/embeds')
 
 module.exports = {
@@ -103,8 +103,7 @@ module.exports = {
                     await interaction.editReply({embeds: [nonPermittedAction]})
                     return;
                 }
-                //TODO: Add role show info here.
-                logger.trace('(/config roles show) - Getting roles from DB')
+                await logger.trace('(/config roles show) - Getting roles from DB')
                 let roles = await db.getRolesForGuild(interaction.guild.id);
 
                 let roleArrays = {
@@ -120,16 +119,38 @@ module.exports = {
                     roleArrays[role.permission].push(role.roleId);
                 }
 
-                await interaction.editReply({embeds: [new EmbedBuilder()
+                await interaction.editReply({
+                    embeds: [new EmbedBuilder()
                         .setTitle('Guild roles')
                         .setDescription('The following are the configured roles for your guild. To configure them further, please use the /guild config command')
                         .addFields(
-                            {name: 'Blocked member roles', value: `These are roles for members who aren't permitted to run commands: ${roleArrays[0].map(item => roleMention(item)).join()}`, inline: true},
-                            {name: 'Regular member roles', value: `These roles are for members who are entitled to use the bot in the server: ${roleArrays[1].map(item => roleMention(item)).join()}`, inline: true},
-                            {name: 'Moderator member roles', value: `These roles are for members who are moderating the server, like running safeguarding commands: ${roleArrays[2].map(item => roleMention(item)).join()}`, inline: true},
-                            {name: 'Administrator member roles', value: `These roles are for members who are administrating the server: ${roleArrays[3].map(item => roleMention(item)).join()}`, inline: true}
-                        )]});
-
+                            {
+                                name: 'Blocked member roles',
+                                value: `These are roles for members who aren't permitted to run commands: ${roleArrays[0].map(item => roleMention(item)).join()}`,
+                                inline: true
+                            },
+                            {
+                                name: 'Regular member roles',
+                                value: `These roles are for members who are entitled to use the bot in the server: ${roleArrays[1].map(item => roleMention(item)).join()}`,
+                                inline: true
+                            },
+                            {
+                                name: 'Moderator member roles',
+                                value: `These roles are for members who are moderating the server, like running safeguarding commands: ${roleArrays[2].map(item => roleMention(item)).join()}`,
+                                inline: true
+                            },
+                            {
+                                name: 'Administrator member roles',
+                                value: `These roles are for members who are administrating the server: ${roleArrays[3].map(item => roleMention(item)).join()}`,
+                                inline: true
+                            },
+                            {
+                                name: 'Owner member roles',
+                                value: `These roles are for the members who are owners, and need all permissions to the server: ${roleArrays[4].map(item => roleMention(item)).join()}`,
+                                inline: true
+                            }
+                        )]
+                });
 
 
             } else if (interaction.options.getSubcommand() === 'add') {
@@ -142,6 +163,13 @@ module.exports = {
                 if (!await checkPermissionAdmin(db, interaction.member)) {
                     await logger.trace('(/config roles add) - User is not authorized!');
                     await interaction.editReply({embeds: [nonPermittedAction]})
+                    return;
+                }
+
+                // Check that the user isn't an admin attempting to add a higher role level to themselves.
+                if(!await checkPermissionOwner(db, interaction.member) && (await interaction.options.getNumber('permission-level') >= 3)) {
+                    await logger.trace('(/config roles add) - Admin is attempting to create a role at a higher permission than they are allowed')
+                    await interaction.editReply({embeds: [nonPermittedAction]});
                     return;
                 }
 

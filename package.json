@@ -6,7 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "bot": "node .",
-    "dev-bot": "node . | pino-pretty -i pid,hostname -t 'yyyy-mm-dd HH:MM:ss'",
+    "dev-bot": "node . | pino-pretty -i pid,hostname -t 'yyyy-mm-dd HH:MM:ss' -L trace",
     "register": "node cmd-deploy.js"
   },
   "repository": {
