@@ -88,5 +88,3 @@ logger.info('Loading database connection');
     await client.login(DISC_BOT_TOKEN);
 })();
 
-//TODO: Add all commands options to check that they are being ran in a guild or in a different channel.
-

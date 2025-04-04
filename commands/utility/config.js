@@ -107,45 +107,28 @@ module.exports = {
                 logger.trace('(/config roles show) - Getting roles from DB')
                 let roles = await db.getRolesForGuild(interaction.guild.id);
 
-                let lvl0roles = []; // User is blocked from running commands.
-                let lvl1roles = []; // User is a regular user, permitted to run commands.
-                let lvl2roles = []; // User is a moderator, permitted to run some special commands.
-                let lvl3roles = []; // User is an admin, permitted to run most commands
-                let lvl4roles = []; // User is an owner, permitted to run all commands.
+                let roleArrays = {
+                    0: [],
+                    1: [],
+                    2: [],
+                    3: [],
+                    4: []
+                }
 
                 logger.trace('(/config roles show) - Sorting and ordering roles');
                 for (let role of roles) {
-                    switch(role.permission) {
-                        case 0: {
-                            lvl0roles.push(role.roleId);
-                            break;
-                        }
-                        case 1: {
-                            lvl1roles.push(role.roleId);
-                            break;
-                        }
-                        case 2: {
-                            lvl2roles.push(role.roleId);
-                            break;
-                        }
-                        case 3: {
-                            lvl3roles.push(role.roleId);
-                            break;
-                        }
-                        case 4: {
-                            lvl4roles.push(role.roleId);
-                            break;
-                        }
-
-                    }
+                    roleArrays[role.permission].push(role.roleId);
                 }
-                //
-                // interaction.editReply({embeds: [new EmbedBuilder()
-                //         .setTitle('Guild roles')
-                //         .setDescription('The following are the configured roles for your guild. To configure them further, please use the /guild config command')
-                //         .addFields(
-                //             {name: 'Blocked member roles', value: `These are roles for members who aren't permitted to run commands: ${}`}
-                //         )]})
+
+                await interaction.editReply({embeds: [new EmbedBuilder()
+                        .setTitle('Guild roles')
+                        .setDescription('The following are the configured roles for your guild. To configure them further, please use the /guild config command')
+                        .addFields(
+                            {name: 'Blocked member roles', value: `These are roles for members who aren't permitted to run commands: ${roleArrays[0].map(item => roleMention(item)).join()}`, inline: true},
+                            {name: 'Regular member roles', value: `These roles are for members who are entitled to use the bot in the server: ${roleArrays[1].map(item => roleMention(item)).join()}`, inline: true},
+                            {name: 'Moderator member roles', value: `These roles are for members who are moderating the server, like running safeguarding commands: ${roleArrays[2].map(item => roleMention(item)).join()}`, inline: true},
+                            {name: 'Administrator member roles', value: `These roles are for members who are administrating the server: ${roleArrays[3].map(item => roleMention(item)).join()}`, inline: true}
+                        )]});
 
 
 

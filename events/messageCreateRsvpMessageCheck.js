@@ -26,7 +26,7 @@ module.exports = {
             if(!dbResponse) return;
 
             // If the channel isn't an RSVP channel, then feel free to carry on.
-            if (!dbResponse.map(item => item.channelId).includes(channelId)) return;
+            if (!dbResponse.map(item => Number(item.channelId)).includes(channelId)) return;
 
             await logger.info('RSVP Message created!');
 
