@@ -32,10 +32,13 @@ module.exports = {
 
         // Get the safeguarding channels for the server.
         await logger.trace('(MCC Report Concern) - Getting safeguarding channel from DB')
-        let safeguardingChannels = [await db.getChannelOfType(guildId, 'safeguarding')];
+        let sgc = await db.getChannelOfType(guildId, 'safeguarding');
+        let safeguardingChannels = [];
+        safeguardingChannels.push(await interaction.guild.channels.fetch(sgc.channelId));
+
 
         // Handle if the server doesn't have any safeguarding channels.
-        if (safeguardingChannels[0] === undefined) {
+        if (safeguardingChannels.length === 0) {
             await logger.trace('(MCC Report Concern) - Guild doesn\'t have a safeguarding channel. Contacting owner');
             safeguardingChannels.splice(0, 1);
             safeguardingChannels.push(await interaction.guild.fetchOwner().then(owner => owner.createDM()))

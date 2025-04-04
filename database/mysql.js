@@ -175,9 +175,7 @@ class Database {
     async setChannelOfType(guildId, channelId, channelType) {
         await logger.trace('DB - Running setChannelOfType');
         try {
-            await this.Channel.destroy({where: {guildId: guildId, channelType: channelType}});
-
-            await this.Channel.create({channelId: channelId, guildId: guildId, channelType: channelType});
+            await this.Channel.upsert({guildId: guildId, channelId: channelId, channelType: channelType}, {where: {guildId: guildId, channelId: channelId}});
         } catch (error) {
             await logger.error(`DB - Failed to setChannelOfType with error ${error}`);
         }
