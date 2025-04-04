@@ -6,8 +6,6 @@ module.exports = {
     name: Events.MessageDelete,
     async execute(db, interaction) {
         await logger.trace('Message deleted! Checking for RSVP.');
-        // Check that the message deleted is in the right context.
-        if (!interaction.channel.isTextBased() || interaction.channel.isDMBased()) return;
 
         // Get the message and check against the database to see if it is a RSVP Message.
         const messageId = interaction.id;
@@ -63,7 +61,13 @@ module.exports = {
 
         await logger.trace('Deleting the thread channel for RSVP.')
         // Delete once all messages have been archived.
-        await threadChannel.delete();
+        try {
+            await threadChannel.delete();
+        } catch (error) {
+            logger.error(`Message Delete RSVP Checker: ${error}`);
+
+        }
+
 
         await logger.trace('Deleting the RSVP message from database.')
         // Delete the message from the database.

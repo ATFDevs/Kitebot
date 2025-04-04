@@ -20,7 +20,8 @@ module.exports = {
     data: new ContextMenuCommandBuilder()
         .setName('Report Concern')
         .setType(ApplicationCommandType.Message)
-        .setContexts(InteractionContextType.Guild), async execute(db, interaction) {
+        .setContexts(InteractionContextType.Guild),
+    async execute(db, interaction) {
         await logger.info(`Message Context Command (Report concern) ran by ${interaction.member.id}`);
 
         // Get data from the message and interaction.

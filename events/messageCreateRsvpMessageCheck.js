@@ -46,7 +46,11 @@ module.exports = {
 
             await logger.trace('Deleting the original message.')
             // Get rid of the original message
-            await interaction.delete();
+            try {
+                await interaction.delete();
+            } catch (error) {
+                return;
+            }
 
             await logger.trace('Sending the RSVP embed.')
             // Send the response embed to the channel.
