@@ -16,6 +16,10 @@ const {
 } = require("discord.js");
 const logger = require("../../logger");
 
+function btoaUTF(str) {
+    return Buffer.from(str, 'utf8').toString('base64')
+}
+
 module.exports = {
     data: new ContextMenuCommandBuilder()
         .setName('Report Concern')
@@ -72,7 +76,7 @@ module.exports = {
 
         // Store the record in the database.
         await logger.trace('(MCC Report Concern) - Logging safeguarding concern to DB');
-        let logId = await db.addMessageConcern(guildId, reportingMember, btoa(modalInteraction.fields.getTextInputValue('report-message-concern-message')), messageSender.id, btoa(messageContent));
+        let logId = await db.addMessageConcern(guildId, reportingMember, btoaUTF(modalInteraction.fields.getTextInputValue('report-message-concern-message')), messageSender.id, btoa(messageContent));
 
         // Send the information for each channel.
         await logger.trace('(MCC Report Concern) - Reporting concern to guild');
