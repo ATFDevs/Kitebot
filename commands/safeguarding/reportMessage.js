@@ -15,6 +15,7 @@ const {
     InteractionContextType
 } = require("discord.js");
 const logger = require("../../logger");
+const {TimeoutError} = require("sequelize");
 
 function btoaUTF(str) {
     return Buffer.from(str, 'utf8').toString('base64')
@@ -76,7 +77,7 @@ module.exports = {
 
         // Store the record in the database.
         await logger.trace('(MCC Report Concern) - Logging safeguarding concern to DB');
-        let logId = await db.addMessageConcern(guildId, reportingMember, btoaUTF(modalInteraction.fields.getTextInputValue('report-message-concern-message')), messageSender.id, btoa(messageContent));
+        let logId = await db.addMessageConcern(guildId, reportingMember, btoaUTF(modalInteraction.fields.getTextInputValue('report-message-concern-message')), messageSender.id, btoaUTF(messageContent));
 
         // Send the information for each channel.
         await logger.trace('(MCC Report Concern) - Reporting concern to guild');

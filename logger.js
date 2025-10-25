@@ -4,7 +4,7 @@ const path = require("node:path");
 
 const logStream = fs.createWriteStream(path.join(__dirname, 'bot-logs.log'), {flags: 'a'});
 
-const logger = pino({}, pino.transport({
+const logger = pino({level: 'trace'}, pino.transport({
         targets: [
             {
                 target: require.resolve('pino-pretty'),
